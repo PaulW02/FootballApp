@@ -10,9 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import mobappdev.example.apiapplication.ui.screens.JokeScreen
+import mobappdev.example.apiapplication.ui.screens.WeatherScreen
 import mobappdev.example.apiapplication.ui.theme.JokeGeneratorTheme
-import mobappdev.example.apiapplication.ui.viewmodels.JokeVM
+import mobappdev.example.apiapplication.ui.viewmodels.WeatherVM
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,8 +24,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val jokeViewModel = JokeVM(application = application)
-                    JokeScreen(vm = jokeViewModel)
+                    val jokeViewModel = WeatherVM(application = application)
+                    WeatherScreen(vm = jokeViewModel)
                 }
             }
         }
