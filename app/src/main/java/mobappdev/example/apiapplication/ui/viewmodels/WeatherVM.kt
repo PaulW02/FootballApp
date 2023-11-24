@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import mobappdev.example.apiapplication.data.WeatherDaily
+import mobappdev.example.apiapplication.data.WeatherDetails
 import mobappdev.example.apiapplication.data.WeatherStorage
 import mobappdev.example.apiapplication.networking.WeatherDataSource
 import mobappdev.example.apiapplication.utils.Result
@@ -18,8 +19,10 @@ import java.time.LocalDate
 
 interface WeatherViewModel {
     val weather: StateFlow<WeatherDaily?>
+    val weatherToday: StateFlow<WeatherDetails?>
 
     fun fetchWeather()
+    fun fetchWeatherToday()
 }
 
 class WeatherVM(
@@ -32,8 +35,15 @@ class WeatherVM(
     private val _weatherState = MutableStateFlow<Result<String>>(Result.Loading)
     val weatherState: StateFlow<Result<String>> = _weatherState
 
+    private val _weatherToday = MutableStateFlow<WeatherDetails?>(null)
+    override val weatherToday: StateFlow<WeatherDetails?> = _weatherToday.asStateFlow()
+
+    private val _weatherTodayState = MutableStateFlow<Result<String>>(Result.Loading)
+    val weatherTodayState: StateFlow<Result<String>> = _weatherTodayState
+
     init {
         fetchWeather()
+        fetchWeatherToday()
         getSavedWeather()
     }
 
@@ -55,6 +65,26 @@ class WeatherVM(
             }
         }
     }
+
+    override fun fetchWeatherToday() {
+        viewModelScope.launch {
+            _weatherTodayState.value = Result.Loading
+            try {
+                val result = WeatherDataSource.getStockholmTodayWeather()
+                if (result is Result.Success) {
+                    _weatherToday.update { result.data }
+                    // Save weather
+                    //WeatherStorage.saveWeather(getApplication<Application>().applicationContext, result.data, LocalDate.now())
+                    _weatherTodayState.value = Result.Success(result.data.timezone)
+                } else {
+                    _weatherTodayState.value = Result.Error(Exception("Failed to fetch weather"))
+                }
+            } catch (e: Exception) {
+                _weatherTodayState.value = Result.Error(e)
+            }
+        }
+    }
+
 
     private fun getSavedWeather() {
         val storedWeather = WeatherStorage.getSavedWeather(getApplication<Application>().applicationContext)
