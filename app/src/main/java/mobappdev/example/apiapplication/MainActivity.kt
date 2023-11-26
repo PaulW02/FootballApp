@@ -1,6 +1,8 @@
 package mobappdev.example.apiapplication
 
+import android.app.Application
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +27,13 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val jokeViewModel = WeatherVM(application = application)
-                    WeatherScreen(vm = jokeViewModel)
+                    val isInternetAvailable = jokeViewModel.isInternetAvailable(applicationContext)
+                    if (!isInternetAvailable) {
+                        Toast.makeText(applicationContext, "No internet connection", Toast.LENGTH_SHORT).show()
+                    } else {
+                        WeatherScreen(vm = jokeViewModel)
+                    }
+
                 }
             }
         }
