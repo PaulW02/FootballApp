@@ -43,17 +43,33 @@ class WeatherVM(
     private val _weatherTodayState = MutableStateFlow<Result<String>>(Result.Loading)
     val weatherTodayState: StateFlow<Result<String>> = _weatherTodayState
 
+    private val _latitude = MutableStateFlow<Double>(59.34)
+      val latitude: StateFlow<Double>
+         get() = _latitude
+
+    private val _longitude = MutableStateFlow<Double>(18.0687)
+     val longitude: StateFlow<Double>
+        get() = _longitude
+
     init {
         fetchWeather()
          fetchWeatherToday()
         getSavedWeather()
     }
 
+    fun setLongitude(longitude: Double) {
+        _longitude.value = longitude
+    }
+    fun setLatitude(latitude: Double)
+    {
+        _latitude.value = latitude
+    }
+
     override fun fetchWeather() {
         viewModelScope.launch {
             _weatherState.value = Result.Loading
             try {
-                val result = WeatherDataSource.getWeatherForWeek(59.3294,        18.0687)
+                val result = WeatherDataSource.getWeatherForWeek(latitude.value, longitude.value)
                 if (result is Result.Success) {
                     _weather.update { result.data }
                     // Save weather

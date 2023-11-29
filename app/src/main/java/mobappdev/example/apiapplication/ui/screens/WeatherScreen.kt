@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import mobappdev.example.apiapplication.ui.components.DailyView
 import mobappdev.example.apiapplication.ui.components.HourlyView
+import mobappdev.example.apiapplication.ui.components.SearchView
 import mobappdev.example.apiapplication.ui.viewmodels.WeatherVM
 
 @Composable
@@ -41,6 +42,8 @@ fun WeatherScreen(
             HourlyView(vm = vm)
             Spacer(modifier = Modifier.height(16.dp))
             DailyView(vm = vm)
+            Spacer(modifier = Modifier.height(2.dp))
+            SearchView(vm = vm)
             Spacer(modifier = Modifier.height(2.dp))
         }
     }
