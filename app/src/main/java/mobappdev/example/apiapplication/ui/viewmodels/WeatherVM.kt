@@ -53,7 +53,7 @@ class WeatherVM(
         viewModelScope.launch {
             _weatherState.value = Result.Loading
             try {
-                val result = WeatherDataSource.getStockholmDailyWeather()
+                val result = WeatherDataSource.getWeatherForWeek(59.3294,        18.0687)
                 if (result is Result.Success) {
                     _weather.update { result.data }
                     // Save weather

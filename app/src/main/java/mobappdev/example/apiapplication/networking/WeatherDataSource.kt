@@ -55,7 +55,28 @@ object WeatherDataSource {
             }
         }
     }
+    suspend fun getWeatherForWeek(latitude: Double, longitude: Double): Result<WeatherDaily> {
 
+        val baseUrl = "https://api.open-meteo.com/v1/forecast"
+
+        val url = URL("$baseUrl?latitude=$latitude&longitude=$longitude&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset")
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val connection = url.openConnection() as HttpURLConnection
+                val inputStream = connection.inputStream
+                val json = inputStream.bufferedReader().use { it.readText() }
+
+                // Use Gson to parse the JSON string into a WeatherDaily object
+                val type = object : TypeToken<WeatherDaily>() {}.type
+                val weatherDaily = Gson().fromJson<WeatherDaily>(json, type)
+
+                Result.Success(weatherDaily)
+            } catch (e: Exception) {
+                Result.Error(e)
+            }
+        }
+    }
     suspend fun getStockholmTodayWeather(): Result<WeatherDetails> {
         val urlString = hourlyURL
         val url = URL(urlString)
