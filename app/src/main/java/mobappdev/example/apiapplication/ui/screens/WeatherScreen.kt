@@ -1,8 +1,10 @@
 package mobappdev.example.apiapplication.ui.screens
 
+import Overview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
@@ -39,12 +41,30 @@ fun WeatherScreen(
                 .fillMaxSize()
                 .background(secondaryColor)
         ) {
-            HourlyView(vm = vm)
-            Spacer(modifier = Modifier.height(16.dp))
-            DailyView(vm = vm)
-            Spacer(modifier = Modifier.height(2.dp))
-            SearchView(vm = vm)
-            Spacer(modifier = Modifier.height(2.dp))
+            // Content taking 80% of the screen height
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            ) {
+                Overview(vm = vm)
+                Spacer(modifier = Modifier.height(16.dp))
+                HourlyView(vm = vm)
+                Spacer(modifier = Modifier.height(16.dp))
+                DailyView(vm = vm)
+                Spacer(modifier = Modifier.height(2.dp))
+            }
+
+            // SearchView taking 20% of the screen height
+            Column(
+                modifier = Modifier
+                    .weight(0.2f)
+                    .fillMaxHeight()
+            ) {
+                Spacer(modifier = Modifier.height(2.dp))
+                SearchView(vm = vm)
+                Spacer(modifier = Modifier.height(2.dp))
+            }
         }
     }
 }

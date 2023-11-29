@@ -37,22 +37,12 @@ fun HourlyView(
     // Define color palette
     val primaryColor = Color(0xFF1976D2)
     val secondaryColor = Color(0xFF90CAF9)
-    val textColor = Color.Black
+    val textColor = Color.White
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp) // Add padding to create space between the outer border and the contents
     ) {
-
-        Text(
-            text = "Hourly Temperature Forecast Today",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            fontStyle = FontStyle.Italic,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
         val weatherToday = vm.weatherToday.collectAsState()
         weatherToday.value?.let { currentWeather ->
             // Display hourly temperature for today in a horizontally scrollable way

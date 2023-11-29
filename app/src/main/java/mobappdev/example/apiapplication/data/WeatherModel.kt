@@ -23,6 +23,19 @@ data class WeatherDaily(
     val daily: DailyData
 )
 
+data class WeatherCurrent(
+    val current: CurrentData,
+    val daily: DailyData
+)
+
+data class CurrentData(
+    val time: String,
+    val interval: Int,
+    val temperature_2m: Double,
+    val is_day: Int,
+    val rain: Double,
+)
+
 data class HourlyUnits(
     val time: String,
     val temperature_2m: String

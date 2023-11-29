@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import mobappdev.example.apiapplication.data.WeatherCurrent
 import mobappdev.example.apiapplication.data.WeatherDaily
 import mobappdev.example.apiapplication.data.WeatherDetails
 import mobappdev.example.apiapplication.data.WeatherStorage
@@ -22,9 +23,11 @@ import java.time.LocalDate
 interface WeatherViewModel {
     val weather: StateFlow<WeatherDaily?>
     val weatherToday: StateFlow<WeatherDetails?>
+    val weatherCurrent: StateFlow<WeatherCurrent?>
 
     fun fetchWeather()
     fun fetchWeatherToday()
+    fun fetchWeatherCurrent()
 }
 
 class WeatherVM(
@@ -51,9 +54,16 @@ class WeatherVM(
      val longitude: StateFlow<Double>
         get() = _longitude
 
+    private val _weatherCurrent = MutableStateFlow<WeatherCurrent?>(null)
+    override val weatherCurrent: StateFlow<WeatherCurrent?> = _weatherCurrent.asStateFlow()
+
+    private val _weatherCurrentState = MutableStateFlow<Result<String>>(Result.Loading)
+    val weatherCurrentState: StateFlow<Result<String>> = _weatherCurrentState
+
     init {
         fetchWeather()
-         fetchWeatherToday()
+        fetchWeatherToday()
+        fetchWeatherCurrent()
         getSavedWeather()
     }
 
@@ -99,6 +109,25 @@ class WeatherVM(
                 }
             } catch (e: Exception) {
                 _weatherTodayState.value = Result.Error(e)
+            }
+        }
+    }
+
+    override fun fetchWeatherCurrent() {
+        viewModelScope.launch {
+            _weatherCurrentState.value = Result.Loading
+            try {
+                val result = WeatherDataSource.getCurrentWeather()
+                if (result is Result.Success) {
+                    _weatherCurrent.update { result.data }
+                    // Save weather
+                    //WeatherStorage.saveWeather(getApplication<Application>().applicationContext, result.data, LocalDate.now())
+                    _weatherCurrentState.value = Result.Success(result.data.current.time)
+                } else {
+                    _weatherCurrentState.value = Result.Error(Exception("Failed to fetch weather"))
+                }
+            } catch (e: Exception) {
+                _weatherCurrentState.value = Result.Error(e)
             }
         }
     }
