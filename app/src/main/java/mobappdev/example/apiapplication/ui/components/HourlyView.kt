@@ -60,15 +60,10 @@ fun HourlyView(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .padding(horizontal = 8.dp)
-                            .padding(16.dp) // Increase padding to make the borders larger
+                            .padding(16.dp)
                     ) {
-                        // Extract the hour part from the timestamp (assuming the format "yyyy-MM-dd'T'HH:mm")
                         val hour = currentWeather.hourly.time[index].substring(11, 13)
-
-                        // Load the weather icon from the drawable resource
                         val iconRes = remember { R.drawable.cloud }
-
-                        // Display the weather icon
 
                         Text(
                             text = hour,
@@ -78,15 +73,8 @@ fun HourlyView(
                         )
 
                         Spacer(modifier = Modifier.height(4.dp))
-                        /*Image(
-                            painter = painterResource(id = iconRes),
-                            contentDescription = null, // Provide a meaningful description
-                            modifier = Modifier
-                                .height(24.dp) // Adjust the height as needed
-                        )*/
-                        val currentWeatherCode: Int = currentWeather.hourly.weather_code[index].toInt() /* Get the actual weather code from your data */
 
-// ...
+                        val currentWeatherCode: Int = currentWeather.hourly.weather_code[index].toInt() 
 
                         val weatherIcon = when {
                             currentWeatherCode < 10 -> "☀️" // Clear Sky
@@ -99,9 +87,8 @@ fun HourlyView(
                             currentWeatherCode == 80 -> "☀️" // Clear Sky
                             currentWeatherCode in 81..89 -> "⛅" // Partly Cloudy
 
-                            else -> "❓" // Default icon for unknown weather code
+                            else -> "❓"
                         }
-// ...
                         Text(
                             text = weatherIcon,
                             style = MaterialTheme.typography.bodyLarge,
