@@ -69,6 +69,8 @@ fun SearchView(vm: WeatherVM) {
                                 vm.setLatitude(latInput.toDouble())
                                 vm.setLongitude(lonInput.toDouble())
                                 vm.fetchWeather()
+                                vm.fetchWeatherToday()
+                                vm.fetchWeatherCurrent()
                         },
                         modifier = Modifier.weight(1f)
                 ) {

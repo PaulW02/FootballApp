@@ -1,17 +1,12 @@
-package mobappdev.example.apiapplication.ui.screens
-
-import Overview
+import android.content.res.Configuration
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import mobappdev.example.apiapplication.ui.components.DailyView
 import mobappdev.example.apiapplication.ui.components.HourlyView
@@ -36,34 +31,71 @@ fun WeatherScreen(
             onSecondary = textColor
         )
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(secondaryColor)
-        ) {
-            // Content taking 80% of the screen height
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-            ) {
-                Overview(vm = vm)
-                Spacer(modifier = Modifier.height(16.dp))
-                HourlyView(vm = vm)
-                Spacer(modifier = Modifier.height(16.dp))
-                DailyView(vm = vm)
-                Spacer(modifier = Modifier.height(2.dp))
-            }
+        val configuration = LocalConfiguration.current
+        val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-            // SearchView taking 20% of the screen height
+        if (isLandscape) {
+            // Landscape orientation
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(secondaryColor)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(0.5f)
+                        .fillMaxHeight()
+                ) {
+                    HourlyView(vm = vm)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    DailyView(vm = vm)
+                    Spacer(modifier = Modifier.height(2.dp))
+                }
+
+                // SearchView taking 20% of the screen width
+                Column(
+                    modifier = Modifier
+                        .weight(0.5f)
+                        .fillMaxHeight()
+                ) {
+                    Overview(vm = vm)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.weight(1f))
+                    SearchView(vm = vm)
+                    Spacer(modifier = Modifier.height(2.dp))
+                }
+            }
+        } else {
+            // Portrait orientation
             Column(
                 modifier = Modifier
-                    .weight(0.2f)
-                    .fillMaxHeight()
+                    .fillMaxSize()
+                    .background(secondaryColor)
             ) {
-                Spacer(modifier = Modifier.height(2.dp))
-                SearchView(vm = vm)
-                Spacer(modifier = Modifier.height(2.dp))
+                // Content taking 80% of the screen height
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                ) {
+                    Overview(vm = vm)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HourlyView(vm = vm)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    DailyView(vm = vm)
+                    Spacer(modifier = Modifier.height(2.dp))
+                }
+
+                // SearchView taking 20% of the screen height
+                Column(
+                    modifier = Modifier
+                        .weight(0.2f)
+                        .fillMaxHeight()
+                ) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    SearchView(vm = vm)
+                    Spacer(modifier = Modifier.height(2.dp))
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 package mobappdev.example.apiapplication
 
+import WeatherScreen
 import android.app.Application
 import android.os.Bundle
 import android.widget.Toast
@@ -12,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import mobappdev.example.apiapplication.ui.screens.WeatherScreen
 import mobappdev.example.apiapplication.ui.theme.JokeGeneratorTheme
 import mobappdev.example.apiapplication.ui.viewmodels.WeatherVM
 

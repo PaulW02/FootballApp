@@ -76,12 +76,37 @@ fun HourlyView(
                             textAlign = TextAlign.Center,
                             color = Color.White
                         )
+
                         Spacer(modifier = Modifier.height(4.dp))
-                        Image(
+                        /*Image(
                             painter = painterResource(id = iconRes),
                             contentDescription = null, // Provide a meaningful description
                             modifier = Modifier
                                 .height(24.dp) // Adjust the height as needed
+                        )*/
+                        val currentWeatherCode: Int = currentWeather.hourly.weather_code[index].toInt() /* Get the actual weather code from your data */
+
+// ...
+
+                        val weatherIcon = when {
+                            currentWeatherCode < 10 -> "☀️" // Clear Sky
+                            currentWeatherCode in 10..60 -> "☁️" // Cloudy
+                            currentWeatherCode >= 20 && currentWeatherCode <= 29 -> "⛈️" // Thunderstorm
+                            currentWeatherCode in 30..39 -> "🌧️" // Drizzle
+                            currentWeatherCode in 50..59 -> "🌧️" // Rain
+                            currentWeatherCode in 60..69 -> "❄️" // Snow
+                            currentWeatherCode in 70..79 -> "🌫️" // Fog
+                            currentWeatherCode == 80 -> "☀️" // Clear Sky
+                            currentWeatherCode in 81..89 -> "⛅" // Partly Cloudy
+
+                            else -> "❓" // Default icon for unknown weather code
+                        }
+// ...
+                        Text(
+                            text = weatherIcon,
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Center,
+                            color = Color.White
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(

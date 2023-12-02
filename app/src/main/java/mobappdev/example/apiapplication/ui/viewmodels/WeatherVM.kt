@@ -98,7 +98,7 @@ class WeatherVM(
         viewModelScope.launch {
             _weatherTodayState.value = Result.Loading
             try {
-                val result = WeatherDataSource.getStockholmTodayWeather()
+                val result = WeatherDataSource.getStockholmTodayWeather(latitude.value, longitude.value)
                 if (result is Result.Success) {
                     _weatherToday.update { result.data }
                     // Save weather
@@ -117,7 +117,7 @@ class WeatherVM(
         viewModelScope.launch {
             _weatherCurrentState.value = Result.Loading
             try {
-                val result = WeatherDataSource.getCurrentWeather()
+                val result = WeatherDataSource.getCurrentWeather(latitude.value, longitude.value)
                 if (result is Result.Success) {
                     _weatherCurrent.update { result.data }
                     // Save weather
