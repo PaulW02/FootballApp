@@ -19,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,6 +45,12 @@ fun DailyView(
     val secondaryColor = Color(0xFF90CAF9)
     val textColor = Color.White
     val dividerColor = Color(255, 255, 255, 64)
+
+    val weather = vm.weather.collectAsState()
+    val savedWeather by vm.savedWeather.collectAsState()
+    val isInternetAvailable = vm.isInternetAvailable()
+
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -53,7 +60,6 @@ fun DailyView(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        val weather = vm.weather.collectAsState()
         weather.value?.let { currentWeather ->
             // Display time, temperature, sunrise, and sunset for 7 days in a vertically scrollable way
             LazyColumn(
@@ -72,6 +78,8 @@ fun DailyView(
 
                     // Get the name of the weekday
                     val dayOfWeek = localDate.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+
+
 
                     // Display day, degrees, sunrise, and sunset in a horizontally scrollable way
                     Row(

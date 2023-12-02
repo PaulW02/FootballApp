@@ -27,12 +27,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val jokeViewModel = WeatherVM(application = application)
-                    val isInternetAvailable = jokeViewModel.isInternetAvailable(applicationContext)
-                    if (!isInternetAvailable) {
-                        Toast.makeText(applicationContext, "No internet connection", Toast.LENGTH_SHORT).show()
-                    } else {
-                        WeatherScreen(vm = jokeViewModel)
-                    }
+                    WeatherScreen(vm = jokeViewModel)
 
                 }
             }

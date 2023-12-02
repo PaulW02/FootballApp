@@ -3,6 +3,7 @@ package mobappdev.example.apiapplication.ui.viewmodels
 import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +17,6 @@ import mobappdev.example.apiapplication.data.WeatherDetails
 import mobappdev.example.apiapplication.data.WeatherStorage
 import mobappdev.example.apiapplication.networking.WeatherDataSource
 import mobappdev.example.apiapplication.utils.Result
-import mobappdev.example.apiapplication.utils.localDateToString
 import java.time.LocalDate
 
 
@@ -40,6 +40,10 @@ class WeatherVM(
     private val _weatherState = MutableStateFlow<Result<String>>(Result.Loading)
     val weatherState: StateFlow<Result<String>> = _weatherState
 
+
+    private val _savedWeather = MutableStateFlow<WeatherDaily?>(null)
+    val savedWeather: StateFlow<WeatherDaily?> = _savedWeather.asStateFlow()
+
     private val _weatherToday = MutableStateFlow<WeatherDetails?>(null)
     override val weatherToday: StateFlow<WeatherDetails?> = _weatherToday.asStateFlow()
 
@@ -60,13 +64,31 @@ class WeatherVM(
     private val _weatherCurrentState = MutableStateFlow<Result<String>>(Result.Loading)
     val weatherCurrentState: StateFlow<Result<String>> = _weatherCurrentState
 
+
     init {
-        fetchWeather()
-        fetchWeatherToday()
-        fetchWeatherCurrent()
-        getSavedWeather()
+       loadWeatherData()
     }
 
+    private fun loadWeatherData() {
+        if (isInternetAvailable()) {
+            fetchWeather()
+            fetchWeatherToday()
+            fetchWeatherCurrent()
+        } else {
+            Toast.makeText(getApplication<Application>().applicationContext, "No internet connection", Toast.LENGTH_SHORT).show()
+            loadWeatherLocally()
+        }
+    }
+
+    private fun loadWeatherLocally() {
+        val savedWeather = WeatherStorage.loadWeather(getApplication<Application>().applicationContext)
+        setWeather(savedWeather) // Update LiveData or StateFlow with locally saved data
+        val savedWeatherDetails = WeatherStorage.loadWeatherDetails(getApplication<Application>().applicationContext)
+        setWeatherDetails(savedWeatherDetails)
+        val savedWeatherCurrent = WeatherStorage.loadWeatherCurrent(getApplication<Application>().applicationContext)
+        setWeatherCurrent(savedWeatherCurrent)
+
+    }
     fun setLongitude(longitude: Double) {
         _longitude.value = longitude
     }
@@ -74,17 +96,27 @@ class WeatherVM(
     {
         _latitude.value = latitude
     }
-
+   private fun setWeather(weatherData: WeatherDaily?) {
+        _weather.value = weatherData
+    }
+  private  fun setWeatherDetails(weatherData: WeatherDetails?) {
+        _weatherToday.value = weatherData
+    }
+    private fun setWeatherCurrent(weatherCurrent: WeatherCurrent?)
+    {
+        _weatherCurrent.value = weatherCurrent
+    }
     override fun fetchWeather() {
         viewModelScope.launch {
             _weatherState.value = Result.Loading
+
             try {
                 val result = WeatherDataSource.getWeatherForWeek(latitude.value, longitude.value)
                 if (result is Result.Success) {
                     _weather.update { result.data }
                     // Save weather
-                    WeatherStorage.saveWeather(getApplication<Application>().applicationContext, result.data, LocalDate.now())
                     _weatherState.value = Result.Success(result.data.timezone)
+                    WeatherStorage.saveWeather(getApplication<Application>().applicationContext,result.data)
                 } else {
                     _weatherState.value = Result.Error(Exception("Failed to fetch weather"))
                 }
@@ -102,7 +134,7 @@ class WeatherVM(
                 if (result is Result.Success) {
                     _weatherToday.update { result.data }
                     // Save weather
-                    //WeatherStorage.saveWeather(getApplication<Application>().applicationContext, result.data, LocalDate.now())
+                    WeatherStorage.saveWeatherDetails(getApplication<Application>().applicationContext,result.data)
                     _weatherTodayState.value = Result.Success(result.data.timezone)
                 } else {
                     _weatherTodayState.value = Result.Error(Exception("Failed to fetch weather"))
@@ -120,8 +152,7 @@ class WeatherVM(
                 val result = WeatherDataSource.getCurrentWeather(latitude.value, longitude.value)
                 if (result is Result.Success) {
                     _weatherCurrent.update { result.data }
-                    // Save weather
-                    //WeatherStorage.saveWeather(getApplication<Application>().applicationContext, result.data, LocalDate.now())
+                    WeatherStorage.saveWeatherCurrent(getApplication<Application>().applicationContext,result.data)
                     _weatherCurrentState.value = Result.Success(result.data.current.time)
                 } else {
                     _weatherCurrentState.value = Result.Error(Exception("Failed to fetch weather"))
@@ -131,20 +162,16 @@ class WeatherVM(
             }
         }
     }
-    fun isInternetAvailable(context: Context): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    fun isInternetAvailable(): Boolean {
+        val connectivityManager = getApplication<Application>().applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
         return networkInfo != null && networkInfo.isConnected
     }
 
 
-    private fun getSavedWeather() {
-        val storedWeather = WeatherStorage.getSavedWeather(getApplication<Application>().applicationContext)
-        if (storedWeather[1] != localDateToString(LocalDate.now()) || (storedWeather[0] ?: "") == "") {
-            fetchWeather()
-        } else {
-            _weather.update { null } // Clear previous weather data
-            _weatherState.value = Result.Success("Weather loaded from cache") // Indicate that weather was loaded from cache
-        }
-    }
+
+
+
 }
+
+
