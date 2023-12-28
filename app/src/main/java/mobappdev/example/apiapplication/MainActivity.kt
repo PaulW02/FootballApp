@@ -1,7 +1,6 @@
 package mobappdev.example.apiapplication
 
-import LeaguesScreen
-import WeatherScreen
+import FootballScreen
 import android.app.Application
 import android.os.Bundle
 import android.widget.Toast
@@ -16,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import mobappdev.example.apiapplication.ui.theme.JokeGeneratorTheme
 import mobappdev.example.apiapplication.ui.viewmodels.LeagueVM
-import mobappdev.example.apiapplication.ui.viewmodels.WeatherVM
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,8 +27,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val jokeViewModel = LeagueVM(application = application)
-                    LeaguesScreen(vm = jokeViewModel)
-
+                    FootballScreen(vm = jokeViewModel)
                 }
             }
         }
