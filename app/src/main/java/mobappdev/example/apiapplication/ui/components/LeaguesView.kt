@@ -39,7 +39,7 @@ fun LeaguesView(
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(league.leagues.size) { index ->
+            items(league.countries.size) { index ->
                 // Display league information in a vertically scrollable way
                 Column(
                     modifier = Modifier
@@ -47,7 +47,7 @@ fun LeaguesView(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = league.leagues[index].strLeague,
+                        text = league.countries[index].strLeague,
                         style = MaterialTheme.typography.bodyLarge.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
@@ -56,13 +56,13 @@ fun LeaguesView(
                     )
 
                     Text(
-                        text = "Sport: ${league.leagues[index].strSport}",
+                        text = "Sport: ${league.countries[index].strSport}",
                         style = MaterialTheme.typography.bodyLarge,
                         color = textColor
                     )
 
                     Text(
-                        text = "Alternate Name: ${league.leagues[index].strLeagueAlternate}",
+                        text = "Alternate Name: ${league.countries[index].strLeagueAlternate}",
                         style = MaterialTheme.typography.bodyLarge,
                         color = textColor
                     )

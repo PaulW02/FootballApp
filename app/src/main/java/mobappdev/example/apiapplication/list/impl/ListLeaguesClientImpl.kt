@@ -20,7 +20,7 @@ import java.net.URL
  */
 class ListLeaguesClientImpl : ListLeaguesClient, AbstractJsportsClient() {
     override suspend fun all(): Result<Leagues> {
-        val request = requestBuilder("/all_leagues.php")
+        val request = requestBuilder("/search_all_leagues.php?s=Soccer")
 
         val url = request.url.toUrl()
 
