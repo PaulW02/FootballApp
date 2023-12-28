@@ -15,8 +15,8 @@ import mobappdev.example.apiapplication.utils.Result
 import org.json.JSONObject
 
 object WeatherDataSource {
-    private const val hourlyURL = "https://api.open-meteo.com/v1/forecast?latitude=59.3294&longitude=18.0687&hourly=temperature_2m,weather_code&forecast_days=1"
-    private const val dailyURL = "https://api.open-meteo.com/v1/forecast?latitude=59.3294&longitude=18.0687&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset"
+    private const val hourlyURL = "https://api.open-meteo.com/v1/forecast?latitude=59.3294&longitude=18.0687&hourly=temperature_2m,weather_code&timezone=Europe%2FBerlin&f&forecast_days=1"
+    private const val dailyURL = "https://api.open-meteo.com/v1/forecast?latitude=59.3294&longitude=18.0687&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=Europe%2FBerlin&f"
     private const val currentURL = "https://api.open-meteo.com/v1/forecast?latitude=59.3294&longitude=18.0687&current=temperature_2m,is_day,rain&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=1"
 
     suspend fun getStockholmHourlyWeather(): Result<WeatherDetails> {
@@ -64,7 +64,7 @@ object WeatherDataSource {
     suspend fun getCurrentWeather(latitude: Double, longitude: Double): Result<WeatherCurrent> {
         val baseUrl = "https://api.open-meteo.com/v1/forecast"
 
-        val url = URL("$baseUrl?latitude=$latitude&longitude=$longitude&current=temperature_2m,is_day,rain&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=1")
+        val url = URL("$baseUrl?latitude=$latitude&longitude=$longitude&current=temperature_2m,is_day,rain&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=Europe%2FBerlin&f&forecast_days=1")
 
         return withContext(Dispatchers.IO) {
             try {
@@ -92,7 +92,7 @@ object WeatherDataSource {
 
         val baseUrl = "https://api.open-meteo.com/v1/forecast"
 
-        val url = URL("$baseUrl?latitude=$latitude&longitude=$longitude&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset")
+        val url = URL("$baseUrl?latitude=$latitude&longitude=$longitude&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=Europe%2FBerlin&f")
 
         return withContext(Dispatchers.IO) {
             try {
@@ -113,7 +113,7 @@ object WeatherDataSource {
     suspend fun getStockholmTodayWeather(latitude: Double, longitude: Double): Result<WeatherDetails> {
         val baseUrl = "https://api.open-meteo.com/v1/forecast"
 
-        val url = URL("$baseUrl?latitude=$latitude&longitude=$longitude&hourly=temperature_2m,weather_code&forecast_days=1")
+        val url = URL("$baseUrl?latitude=$latitude&longitude=$longitude&hourly=temperature_2m,weather_code&timezone=Europe%2FBerlin&f&forecast_days=1")
 
 
         return withContext(Dispatchers.IO) {
