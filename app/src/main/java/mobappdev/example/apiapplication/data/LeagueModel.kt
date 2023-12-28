@@ -1,7 +1,7 @@
 package mobappdev.example.apiapplication.data
 
 data class Leagues(
-    val leagues: List<League>
+    val countries: List<League>
 )
 
 data class League(

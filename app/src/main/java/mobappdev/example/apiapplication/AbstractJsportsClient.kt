@@ -12,7 +12,7 @@ import okhttp3.Request
 abstract class AbstractJsportsClient(
         var client: OkHttpClient = OkHttpClient(),
         var objectMapper: ObjectMapper = ObjectMapper(),
-        var apiKey: String = "3"
+        var apiKey: String = "60130162"
 ) {
     protected fun handleClientCall(request: Request): String {
         return client.newCall(request).execute().use { response ->
