@@ -1,6 +1,6 @@
 package mobappdev.example.apiapplication
 
-import WeatherScreen
+import FootballScreen
 import android.app.Application
 import android.os.Bundle
 import android.widget.Toast
@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import mobappdev.example.apiapplication.ui.theme.JokeGeneratorTheme
-import mobappdev.example.apiapplication.ui.viewmodels.WeatherVM
+import mobappdev.example.apiapplication.ui.viewmodels.LeagueVM
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,9 +26,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val jokeViewModel = WeatherVM(application = application)
-                    WeatherScreen(vm = jokeViewModel)
-
+                    val jokeViewModel = LeagueVM(application = application)
+                    FootballScreen(vm = jokeViewModel)
                 }
             }
         }

@@ -1,5 +1,7 @@
 package mobappdev.example.apiapplication.list
 
+import mobappdev.example.apiapplication.data.League
+import mobappdev.example.apiapplication.data.Leagues
 import mobappdev.example.apiapplication.model.ResultResponse
 
 /**
@@ -8,7 +10,7 @@ import mobappdev.example.apiapplication.model.ResultResponse
  * Time: 4:06 PM
  */
 interface ListLeaguesClient {
-    fun all(): ResultResponse
+    suspend fun all(): Result<Leagues>
 
     fun byCountry(country: String): ResultResponse
 

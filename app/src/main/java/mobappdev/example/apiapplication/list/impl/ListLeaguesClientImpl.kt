@@ -1,8 +1,17 @@
 package mobappdev.example.apiapplication.list.impl
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import mobappdev.example.apiapplication.model.ResultResponse
 import mobappdev.example.apiapplication.AbstractJsportsClient
+import mobappdev.example.apiapplication.data.Leagues
+import mobappdev.example.apiapplication.data.WeatherDaily
 import mobappdev.example.apiapplication.list.ListLeaguesClient
+import mobappdev.example.apiapplication.networking.WeatherDataSource
+import java.net.HttpURLConnection
+import java.net.URL
 
 /**
  * Created by Arthur Asatryan.
@@ -10,9 +19,26 @@ import mobappdev.example.apiapplication.list.ListLeaguesClient
  * Time: 4:06 PM
  */
 class ListLeaguesClientImpl : ListLeaguesClient, AbstractJsportsClient() {
-    override fun all(): ResultResponse {
+    override suspend fun all(): Result<Leagues> {
         val request = requestBuilder("/all_leagues.php")
-        return ResultResponse(handleClientCall(request), objectMapper)
+
+        val url = request.url.toUrl()
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val connection = url.openConnection() as HttpURLConnection
+                val inputStream = connection.inputStream
+                val json = inputStream.bufferedReader().use { it.readText() }
+
+                // Use Gson to parse the JSON string into a Joke object
+                val type = object : TypeToken<Leagues>() {}.type
+                val joke = Gson().fromJson<Leagues>(json, type)
+
+                Result.success(joke)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
     }
 
     override fun byCountry(country: String): ResultResponse {
