@@ -1,5 +1,6 @@
 package mobappdev.example.apiapplication
 
+import LeaguesScreen
 import WeatherScreen
 import android.app.Application
 import android.os.Bundle
@@ -14,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import mobappdev.example.apiapplication.ui.theme.JokeGeneratorTheme
+import mobappdev.example.apiapplication.ui.viewmodels.LeagueVM
 import mobappdev.example.apiapplication.ui.viewmodels.WeatherVM
 
 class MainActivity : ComponentActivity() {
@@ -26,8 +28,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val jokeViewModel = WeatherVM(application = application)
-                    WeatherScreen(vm = jokeViewModel)
+                    val jokeViewModel = LeagueVM(application = application)
+                    LeaguesScreen(vm = jokeViewModel)
 
                 }
             }
