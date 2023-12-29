@@ -1,9 +1,8 @@
 package mobappdev.example.apiapplication
 
 import FootballScreen
-import android.app.Application
+import SearchScreen
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,8 +12,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import mobappdev.example.apiapplication.ui.screens.TeamScreen
 import mobappdev.example.apiapplication.ui.theme.JokeGeneratorTheme
 import mobappdev.example.apiapplication.ui.viewmodels.LeagueVM
+import mobappdev.example.apiapplication.ui.viewmodels.SearchVM
+import mobappdev.example.apiapplication.ui.viewmodels.TeamVM
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,8 +33,33 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val jokeViewModel = LeagueVM(application = application)
-                    FootballScreen(vm = jokeViewModel)
+
+                    val navController = rememberNavController()
+                    val leaguesVM = LeagueVM(application = application)
+                    val searchVM = SearchVM(application = application)
+                    val teamVM = TeamVM(application = application)
+
+                    NavHost(navController = navController, startDestination = "home") {
+                        composable("home") {
+                            FootballScreen(vm = leaguesVM, navController = navController)
+                        }
+                        composable("search") {
+                            // Replace with the content of your search screen
+                            SearchScreen(vm = searchVM, navController = navController)
+                        }
+                        composable(
+                            route = "team/{teamId}",
+                            arguments = listOf(navArgument("teamId") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val teamId = backStackEntry.arguments?.getString("teamId")
+                            if (teamId != null) {
+                                TeamScreen(vm = teamVM, teamId = teamId.toInt())
+                            } else {
+                                // Handle the case where teamId is null
+                                Text("Error: Invalid teamId")
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -49,3 +81,4 @@ fun GreetingPreview() {
         Greeting("Android")
     }
 }
+

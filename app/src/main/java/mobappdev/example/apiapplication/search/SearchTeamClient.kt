@@ -1,5 +1,6 @@
 package mobappdev.example.apiapplication.search
 
+import mobappdev.example.apiapplication.data.Teams
 import mobappdev.example.apiapplication.model.ResultResponse
 
 /**
@@ -8,7 +9,7 @@ import mobappdev.example.apiapplication.model.ResultResponse
  * Time: 2:43 PM
  */
 interface SearchTeamClient {
-    fun byName(name: String): ResultResponse
+    suspend fun byName(name: String): Result<Teams>
 
     fun byShortCode(shortCode: String): ResultResponse
 }

@@ -1,5 +1,7 @@
 package mobappdev.example.apiapplication.lookup
 
+import mobappdev.example.apiapplication.data.TeamDetails
+import mobappdev.example.apiapplication.data.TeamsDetails
 import mobappdev.example.apiapplication.model.ResultResponse
 
 /**
@@ -8,5 +10,5 @@ import mobappdev.example.apiapplication.model.ResultResponse
  * Time: 8:55 PM
  */
 interface LookupTeamClient {
-    fun byId(id: Int): ResultResponse
+    suspend fun byId(id: Int): Result<TeamsDetails>
 }
