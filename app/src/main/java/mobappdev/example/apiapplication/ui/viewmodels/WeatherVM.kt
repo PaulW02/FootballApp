@@ -25,6 +25,8 @@ interface WeatherViewModel {
     val weatherToday: StateFlow<WeatherDetails?>
     val weatherCurrent: StateFlow<WeatherCurrent?>
 
+
+
     fun fetchWeather()
     fun fetchWeatherToday()
     fun fetchWeatherCurrent()
@@ -79,6 +81,7 @@ class WeatherVM(
             loadWeatherLocally()
         }
     }
+
 
     private fun loadWeatherLocally() {
         val savedWeather = WeatherStorage.loadWeather(getApplication<Application>().applicationContext)

@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHost
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,6 +21,7 @@ import androidx.navigation.navArgument
 import mobappdev.example.apiapplication.ui.screens.TeamScreen
 import mobappdev.example.apiapplication.ui.theme.JokeGeneratorTheme
 import mobappdev.example.apiapplication.ui.viewmodels.LeagueVM
+import mobappdev.example.apiapplication.ui.viewmodels.MatchVM
 import mobappdev.example.apiapplication.ui.viewmodels.SearchVM
 import mobappdev.example.apiapplication.ui.viewmodels.TeamVM
 
@@ -38,6 +40,7 @@ class MainActivity : ComponentActivity() {
                     val leaguesVM = LeagueVM(application = application)
                     val searchVM = SearchVM(application = application)
                     val teamVM = TeamVM(application = application)
+                    val matchVM = MatchVM(application=application)
 
                     NavHost(navController = navController, startDestination = "home") {
                         composable("home") {

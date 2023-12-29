@@ -29,7 +29,7 @@ object WeatherDataSource {
                 val inputStream = connection.inputStream
                 val json = inputStream.bufferedReader().use { it.readText() }
 
-                // Use Gson to parse the JSON string into a Joke object
+                // Use Gson to parse the <JSON string into a Joke object
                 val type = object : TypeToken<WeatherDetails>() {}.type
                 val joke = Gson().fromJson<WeatherDetails>(json, type)
 

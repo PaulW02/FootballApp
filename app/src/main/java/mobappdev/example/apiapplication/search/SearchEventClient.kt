@@ -1,5 +1,6 @@
 package mobappdev.example.apiapplication.search
 
+import Matches
 import mobappdev.example.apiapplication.model.ResultResponse
 
 /**
@@ -10,5 +11,5 @@ import mobappdev.example.apiapplication.model.ResultResponse
 interface SearchEventClient {
     fun byName(name: String): ResultResponse
 
-    fun byNameAndSeason(name: String, season: Int): ResultResponse
+    suspend fun byNameAndSeason(name: String, season: String): Result<Matches>
 }
