@@ -4,7 +4,6 @@ import Matches
 import UpcomingMatches
 import android.app.Application
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 
 import mobappdev.example.apiapplication.search.impl.SearchEventClientImpl
@@ -14,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import mobappdev.example.apiapplication.search.impl.UpcomingMatchesClientImpl
+import mobappdev.example.apiapplication.search.impl.MatchesClientImpl
 import mobappdev.example.apiapplication.utils.Result
 
 interface MatchViewModel{
@@ -30,7 +29,7 @@ application: Application
     private val _matches = MutableStateFlow<Matches?>(null)
     val matches: StateFlow<Matches?> = _matches.asStateFlow()
 
-    private val upcomingMatchesClientImpl: UpcomingMatchesClientImpl = UpcomingMatchesClientImpl()
+    private val upcomingMatchesClientImpl: MatchesClientImpl = MatchesClientImpl()
     private val _upcomingMatchState = MutableStateFlow<Result<String>>(Result.Loading)
     private val _upcomingMatches = MutableStateFlow<UpcomingMatches?>(null)
     val upcomingMatches: StateFlow<UpcomingMatches?> = _upcomingMatches.asStateFlow()

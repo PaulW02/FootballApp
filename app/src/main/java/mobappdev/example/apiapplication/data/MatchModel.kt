@@ -17,3 +17,37 @@ fun parseToMatch(responseData: JSONObject): Match {
 
     return Match(strHomeTeam, strAwayTeam, intHomeScore, intAwayScore)
 }
+
+data class UpcomingMatch(
+    val idEvent: Int,
+    val strHomeTeam: String,
+    val idHomeTeam: Int,
+    val strAwayTeam: String,
+    val idAwayTeam: Int,
+    var strHomeTeamBadge: String,
+    var strAwayTeamBadge: String,
+    val strVenue: String,
+    val dateEvent: String,
+    val strTime: String,
+)
+data class UpcomingMatches (
+    val events: List<UpcomingMatch>
+)
+
+data class PastMatch(
+    val idEvent: Int,
+    val strHomeTeam: String,
+    val idHomeTeam: Int,
+    val strAwayTeam: String,
+    val idAwayTeam: Int,
+    var strHomeTeamBadge: String,
+    var strAwayTeamBadge: String,
+    val intHomeScore: Int,
+    val intAwayScore: Int,
+    val strVenue: String,
+    val dateEvent: String,
+    val strTime: String,
+)
+data class PastMatches (
+    val results: List<PastMatch>
+)

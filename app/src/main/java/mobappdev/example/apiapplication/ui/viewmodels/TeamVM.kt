@@ -1,5 +1,6 @@
 package mobappdev.example.apiapplication.ui.viewmodels
 
+import PastMatches
 import UpcomingMatches
 import android.app.Application
 import android.util.Log
@@ -10,18 +11,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import mobappdev.example.apiapplication.data.League
-import mobappdev.example.apiapplication.data.TeamDetails
-import mobappdev.example.apiapplication.data.Teams
 import mobappdev.example.apiapplication.data.TeamsDetails
-import mobappdev.example.apiapplication.data.WeatherDaily
-import mobappdev.example.apiapplication.data.WeatherStorage
-import mobappdev.example.apiapplication.list.ListTeamsClient
-import mobappdev.example.apiapplication.list.impl.ListTeamsClientImpl
 import mobappdev.example.apiapplication.lookup.LookupTeamClient
 import mobappdev.example.apiapplication.lookup.impl.LookupTeamClientImpl
-import mobappdev.example.apiapplication.networking.WeatherDataSource
-import mobappdev.example.apiapplication.search.impl.UpcomingMatchesClientImpl
+import mobappdev.example.apiapplication.search.MatchesClient
+import mobappdev.example.apiapplication.search.impl.MatchesClientImpl
 import mobappdev.example.apiapplication.utils.Result
 
 
@@ -30,6 +24,9 @@ interface TeamViewModel {
     fun fetchTeam(id: Int)
     val upcomingMatches: StateFlow<UpcomingMatches?>
     fun fetchUpcomingMatches(id: Int)
+    val pastMatches: StateFlow<PastMatches?>
+
+    fun fetchPastMatches(id: Int)
 
 }
 
@@ -42,11 +39,16 @@ class TeamVM (application: Application
     private val _teamState = MutableStateFlow<Result<String>>(Result.Loading)
     val teamState: StateFlow<Result<String>> = _teamState
 
-    private val upcomingMatchesClientImpl: UpcomingMatchesClientImpl = UpcomingMatchesClientImpl()
+    private val matchesClient: MatchesClient = MatchesClientImpl()
     private val _upcomingMatchState = MutableStateFlow<Result<String>>(Result.Loading)
     val upcomingMatchState: StateFlow<Result<String>> = _upcomingMatchState
     private val _upcomingMatches = MutableStateFlow<UpcomingMatches?>(null)
-   override val upcomingMatches: StateFlow<UpcomingMatches?> = _upcomingMatches.asStateFlow()
+    override val upcomingMatches: StateFlow<UpcomingMatches?> = _upcomingMatches.asStateFlow()
+
+    private val _pastMatchState = MutableStateFlow<Result<String>>(Result.Loading)
+    val pastMatchState: StateFlow<Result<String>> = _pastMatchState
+    private val _pastMatches = MutableStateFlow<PastMatches?>(null)
+    override val pastMatches: StateFlow<PastMatches?> = _pastMatches.asStateFlow()
     override fun fetchTeam(id: Int) {
         viewModelScope.launch {
             _teamState.value = Result.Loading
@@ -72,16 +74,35 @@ class TeamVM (application: Application
         viewModelScope.launch {
             _upcomingMatchState.value = Result.Loading
             try {
-                val result = upcomingMatchesClientImpl.searchUpcomingMatchesById(id)
+                val result = matchesClient.searchUpcomingMatchesById(id)
                 Log.e("upcoming mathces ", "upcoming matches $result")
                 if (result != null){
                     _upcomingMatches.update { result.getOrNull() }
                 }else{
-                    _upcomingMatchState.value = Result.Error(Exception("Failed to fetch weather"))
+                    _upcomingMatchState.value = Result.Error(Exception("Failed to fetch past matches"))
                 }
             }catch (e: Exception)
             {
                 _upcomingMatchState.value = Result.Error(e)
+            }
+        }
+    }
+
+    override fun fetchPastMatches(id: Int)
+    {
+        viewModelScope.launch {
+            _pastMatchState.value = Result.Loading
+            try {
+                val result = matchesClient.searchPastMatchesById(id)
+                Log.e("past mathces ", "past matches $result")
+                if (result != null){
+                    _pastMatches.update { result.getOrNull() }
+                }else{
+                    _pastMatchState.value = Result.Error(Exception("Failed to fetch past matches"))
+                }
+            }catch (e: Exception)
+            {
+                _pastMatchState.value = Result.Error(e)
             }
         }
     }
