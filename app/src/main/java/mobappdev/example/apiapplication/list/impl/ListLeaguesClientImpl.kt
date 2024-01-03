@@ -7,11 +7,8 @@ import kotlinx.coroutines.withContext
 import mobappdev.example.apiapplication.model.ResultResponse
 import mobappdev.example.apiapplication.AbstractJsportsClient
 import mobappdev.example.apiapplication.data.Leagues
-import mobappdev.example.apiapplication.data.WeatherDaily
 import mobappdev.example.apiapplication.list.ListLeaguesClient
-import mobappdev.example.apiapplication.networking.WeatherDataSource
 import java.net.HttpURLConnection
-import java.net.URL
 
 /**
  * Created by Arthur Asatryan.

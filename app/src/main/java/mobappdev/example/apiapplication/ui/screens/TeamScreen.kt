@@ -9,7 +9,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 
 
@@ -20,19 +19,14 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +37,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material.ContentAlpha
@@ -64,6 +59,7 @@ fun TeamScreen(vm: TeamVM, teamId: Int) {
     val upcomingMatches = vm.upcomingMatches.collectAsState()
     val pastMatches = vm.pastMatches.collectAsState()
     val teamBadge = teamDetails.value?.teams?.get(0)?.strTeamBadge
+    val followingTeams = vm.followedTeams.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -85,16 +81,37 @@ fun TeamScreen(vm: TeamVM, teamId: Int) {
                             .padding(16.dp)
                     )
                     // Display team badge
-                    team.teams[index].strTeamBadge.let { badgeUrl ->
-                        Image(
-                            painter = rememberImagePainter(data = badgeUrl),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(100.dp)
-                                .padding(16.dp)
-                        )
-                    }
+                    Image(
+                        painter = rememberImagePainter(data = team.teams[index].strTeamBadge),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .padding(16.dp)
+                    )
                     TeamDetailsSection(team = team.teams[index])
+                    val isFollowing = followingTeams.value != null && followingTeams.value?.contains(team.teams[0]) == true
+                    Button(
+                        onClick = {
+                            // Toggle the follow state
+                            if (!isFollowing) {
+                                Log.e("INSERTING", followingTeams.value.toString())
+                                vm.followTeam(team.teams[0])
+                            }
+                            if (isFollowing){
+                                vm.unFollowTeam(team.teams[0])
+                            }
+                            // You can add additional logic here, such as making an API call to update the follow status
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isFollowing) Color.Gray else Color.Cyan,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text(text = if (isFollowing) "Following" else "Follow")
+                    }
                 }
             }
         }
@@ -213,7 +230,7 @@ fun PastMatchItem(match: PastMatch, teamBadge: String) {
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.Start,
             ) {
-                BadgeImage(match.strHomeTeamBadge, teamBadge)
+                BadgeImage(match.strHomeTeamBadge, teamBadge, 100.dp)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = match.intHomeScore.toString(),
@@ -233,7 +250,7 @@ fun PastMatchItem(match: PastMatch, teamBadge: String) {
                     color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                BadgeImage(match.strAwayTeamBadge, teamBadge)
+                BadgeImage(match.strAwayTeamBadge, teamBadge, 100.dp)
             }
 
             // Display individual match details
@@ -277,7 +294,7 @@ fun UpcomingMatchItem(match: UpcomingMatch, teamBadge: String) {
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.Start,
             ) {
-                BadgeImage(match.strHomeTeamBadge, teamBadge)
+                BadgeImage(match.strHomeTeamBadge, teamBadge, 100.dp)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "-",
@@ -285,7 +302,7 @@ fun UpcomingMatchItem(match: UpcomingMatch, teamBadge: String) {
                     color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                BadgeImage(match.strAwayTeamBadge, teamBadge)
+                BadgeImage(match.strAwayTeamBadge, teamBadge, 100.dp)
             }
 
             // Display individual match details
@@ -311,7 +328,7 @@ fun UpcomingMatchItem(match: UpcomingMatch, teamBadge: String) {
 }
 
 @Composable
-fun BadgeImage(badge: String, teamBadge: String) {
+fun BadgeImage(badge: String, teamBadge: String, size: Dp) {
     Image(
         painter = if (badge == "BadgeURL") {
             rememberImagePainter(data = teamBadge)
@@ -320,7 +337,7 @@ fun BadgeImage(badge: String, teamBadge: String) {
         },
         contentDescription = null,
         modifier = Modifier
-            .size(100.dp)
+            .size(size)
             .padding(16.dp),
         contentScale = ContentScale.Crop
     )
@@ -344,13 +361,13 @@ fun MatchDetailItem(icon: ImageVector, text: String) {
 }
 @Composable
 fun UpcomingMatchesScreen(upcomingMatches: UpcomingMatches, teamBadge: String) {
-    upcomingMatches?.let { matches ->
+    upcomingMatches.let { matches ->
         LazyColumn {
             items(matches.events) { match ->
                 UpcomingMatchItem(match = match, teamBadge = teamBadge)
             }
         }
-    } ?: Text(text = "No upcoming matches available")
+    }
 }
 
 
@@ -401,7 +418,7 @@ fun MatchResultCircle(index: Int, match: PastMatch, teamId: Int, onClick: (Int) 
 @Composable
 fun PastMatchesScreen(pastMatches: PastMatches, teamId: Int, teamBadge: String) {
     val scope = rememberCoroutineScope()
-    var selectedIndex by remember { mutableStateOf(0) }
+    val selectedIndex by remember { mutableIntStateOf(0) }
     val pagerState = rememberPagerState(
         initialPage = selectedIndex,
         initialPageOffsetFraction = 0f
@@ -409,7 +426,7 @@ fun PastMatchesScreen(pastMatches: PastMatches, teamId: Int, teamBadge: String) 
         pastMatches.results.size
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
@@ -418,7 +435,7 @@ fun PastMatchesScreen(pastMatches: PastMatches, teamId: Int, teamBadge: String) 
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
+                .size(40.dp),
             reverseLayout = true
         ) { page ->
             PastMatchItem(match = pastMatches.results[page], teamBadge = teamBadge)
@@ -428,7 +445,7 @@ fun PastMatchesScreen(pastMatches: PastMatches, teamId: Int, teamBadge: String) 
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 16.dp),
             reverseLayout = true,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.Center)
         ) {
             items(pastMatches.results.size) { index ->
                 MatchResultCircle(
@@ -436,7 +453,6 @@ fun PastMatchesScreen(pastMatches: PastMatches, teamId: Int, teamBadge: String) 
                     match = pastMatches.results[index],
                     teamId = teamId,
                     onClick = { clickedIndex ->
-                        // Scroll to the selected match when a circle is clicked
                         scope.launch {
                             pagerState.animateScrollToPage(clickedIndex)
                         }
@@ -444,8 +460,5 @@ fun PastMatchesScreen(pastMatches: PastMatches, teamId: Int, teamBadge: String) 
                 )
             }
         }
-
-        // Display past matches using HorizontalPager
-
     }
 }

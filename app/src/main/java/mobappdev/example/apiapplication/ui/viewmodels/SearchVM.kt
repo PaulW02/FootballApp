@@ -9,13 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import mobappdev.example.apiapplication.data.League
 import mobappdev.example.apiapplication.data.Teams
-import mobappdev.example.apiapplication.data.WeatherDaily
-import mobappdev.example.apiapplication.data.WeatherStorage
-import mobappdev.example.apiapplication.list.ListTeamsClient
-import mobappdev.example.apiapplication.list.impl.ListTeamsClientImpl
-import mobappdev.example.apiapplication.networking.WeatherDataSource
 import mobappdev.example.apiapplication.search.SearchTeamClient
 import mobappdev.example.apiapplication.search.impl.SearchTeamClientImpl
 import mobappdev.example.apiapplication.utils.Result

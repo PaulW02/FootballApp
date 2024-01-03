@@ -2,16 +2,38 @@ package mobappdev.example.apiapplication
 
 import FootballScreen
 import SearchScreen
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode.Companion.Screen
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHost
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -26,43 +48,95 @@ import mobappdev.example.apiapplication.ui.viewmodels.SearchVM
 import mobappdev.example.apiapplication.ui.viewmodels.TeamVM
 
 class MainActivity : ComponentActivity() {
+
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             JokeGeneratorTheme {
-                // A surface container using the 'background' color from the theme
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-
                     val navController = rememberNavController()
                     val leaguesVM = LeagueVM(application = application)
                     val searchVM = SearchVM(application = application)
                     val teamVM = TeamVM(application = application)
                     val matchVM = MatchVM(application=application)
 
-                    NavHost(navController = navController, startDestination = "home") {
-                        composable("home") {
-                            FootballScreen(vm = leaguesVM, navController = navController)
-                        }
-                        composable("search") {
-                            // Replace with the content of your search screen
-                            SearchScreen(vm = searchVM, navController = navController)
-                        }
-                        composable(
-                            route = "team/{teamId}",
-                            arguments = listOf(navArgument("teamId") { type = NavType.StringType })
-                        ) { backStackEntry ->
-                            val teamId = backStackEntry.arguments?.getString("teamId")
-                            if (teamId != null) {
-                                TeamScreen(vm = teamVM, teamId = teamId.toInt())
-                            } else {
-                                // Handle the case where teamId is null
-                                Text("Error: Invalid teamId")
+                    Scaffold(
+                        content = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                            ) {
+                                NavHost(navController, startDestination = "home") {
+                                    composable("home") {
+                                        FootballScreen(vm = teamVM, navController = navController)
+                                    }
+                                    composable("search") {
+                                        // Replace with the content of your search screen
+                                        SearchScreen(vm = searchVM, navController = navController)
+                                    }
+                                    composable(
+                                        route = "team/{teamId}",
+                                        arguments = listOf(navArgument("teamId") { type = NavType.StringType })
+                                    ) { backStackEntry ->
+                                        val teamId = backStackEntry.arguments?.getString("teamId")
+                                        if (teamId != null) {
+                                            TeamScreen(vm = teamVM, teamId = teamId.toInt())
+                                        } else {
+                                            // Handle the case where teamId is null
+                                            Text("Error: Invalid teamId")
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        bottomBar = {
+                            Spacer(modifier = Modifier.height(56.dp))
+                            NavigationBar {
+                                val items = listOf("Hem", "Sök")
+                                var selectedItem by remember { mutableStateOf(0) }
+
+                                items.forEachIndexed { index, item ->
+                                    NavigationBarItem(
+                                        icon = {
+                                            when (index) {
+                                                0 -> Icon(
+                                                    Icons.Default.Home,
+                                                    contentDescription = item
+                                                )
+
+                                                1 -> Icon(
+                                                    Icons.Default.Search,
+                                                    contentDescription = item
+                                                )
+
+                                                else -> Icon(
+                                                    Icons.Default.Info,
+                                                    contentDescription = item
+                                                )
+                                            }
+                                        },
+                                        label = { Text(item) },
+                                        selected = selectedItem == index,
+                                        onClick = {
+                                            if (selectedItem != index) {
+                                                selectedItem = index
+                                                when (index) {
+                                                    0 -> navController.navigate("home")
+                                                    1 -> navController.navigate("search")
+                                                }
+                                            }
+                                        }
+                                    )
+                                }
                             }
                         }
-                    }
+                    )
                 }
             }
         }
