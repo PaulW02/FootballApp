@@ -211,6 +211,19 @@ fun TeamDetailItem(label: String, value: String) {
     }
 }
 
+
+@Composable
+fun UpcomingMatchesScreen(upcomingMatches: UpcomingMatches, teamBadge: String) {
+    upcomingMatches.let { matches ->
+        LazyColumn {
+            items(matches.events) { match ->
+                UpcomingMatchItem(match = match, teamBadge = teamBadge)
+            }
+        }
+    }
+}
+
+
 @Composable
 fun PastMatchItem(match: PastMatch, teamBadge: String) {
     Card(
@@ -359,16 +372,6 @@ fun MatchDetailItem(icon: ImageVector, text: String) {
         )
     }
 }
-@Composable
-fun UpcomingMatchesScreen(upcomingMatches: UpcomingMatches, teamBadge: String) {
-    upcomingMatches.let { matches ->
-        LazyColumn {
-            items(matches.events) { match ->
-                UpcomingMatchItem(match = match, teamBadge = teamBadge)
-            }
-        }
-    }
-}
 
 
 fun getMatchResultColor(match: PastMatch, teamId: Int): Color {
@@ -426,7 +429,7 @@ fun PastMatchesScreen(pastMatches: PastMatches, teamId: Int, teamBadge: String) 
         pastMatches.results.size
     }
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
@@ -434,8 +437,7 @@ fun PastMatchesScreen(pastMatches: PastMatches, teamId: Int, teamBadge: String) 
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
-                .fillMaxWidth()
-                .size(40.dp),
+                .fillMaxWidth(),
             reverseLayout = true
         ) { page ->
             PastMatchItem(match = pastMatches.results[page], teamBadge = teamBadge)
@@ -445,7 +447,7 @@ fun PastMatchesScreen(pastMatches: PastMatches, teamId: Int, teamBadge: String) 
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 16.dp),
             reverseLayout = true,
-            modifier = Modifier.align(Alignment.Center)
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
             items(pastMatches.results.size) { index ->
                 MatchResultCircle(
