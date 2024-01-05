@@ -51,3 +51,10 @@ data class PastMatch(
 data class PastMatches (
     val results: List<PastMatch>
 )
+
+data class PastAndUpcomingMatches (
+    val results: PastMatches,
+    val events: UpcomingMatches
+)
+
+

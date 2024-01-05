@@ -1,5 +1,6 @@
 package mobappdev.example.apiapplication.ui.viewmodels
 
+import PastAndUpcomingMatches
 import PastMatches
 import UpcomingMatches
 import android.app.Application
@@ -11,6 +12,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import mobappdev.example.apiapplication.data.TeamDetails
+import mobappdev.example.apiapplication.data.TeamStorage
 import mobappdev.example.apiapplication.data.TeamsDetails
 import mobappdev.example.apiapplication.lookup.LookupTeamClient
 import mobappdev.example.apiapplication.lookup.impl.LookupTeamClientImpl
@@ -28,6 +31,12 @@ interface TeamViewModel {
 
     fun fetchPastMatches(id: Int)
 
+    val followedTeams: StateFlow<List<TeamDetails>?>
+    fun loadFollowedTeams()
+    fun followTeam(team: TeamDetails)
+    fun unFollowTeam(team: TeamDetails)
+    val combinedMatches: StateFlow<Map<Int, PastAndUpcomingMatches>?>
+    fun fetchPastAndUpcomingMatches(ids: List<Int>)
 }
 
 class TeamVM (application: Application
@@ -49,6 +58,60 @@ class TeamVM (application: Application
     val pastMatchState: StateFlow<Result<String>> = _pastMatchState
     private val _pastMatches = MutableStateFlow<PastMatches?>(null)
     override val pastMatches: StateFlow<PastMatches?> = _pastMatches.asStateFlow()
+
+    private val _followedTeams = MutableStateFlow<List<TeamDetails>?>(null)
+    override val followedTeams: StateFlow<List<TeamDetails>?> = _followedTeams.asStateFlow()
+
+    private val _combinedMatchesState = MutableStateFlow<Result<String>>(Result.Loading)
+    val combinedMatchesState: StateFlow<Result<String>> = _combinedMatchesState
+
+    private val _combinedMatches = MutableStateFlow<Map<Int, PastAndUpcomingMatches>?>(null)
+    override val combinedMatches: StateFlow<Map<Int, PastAndUpcomingMatches>?> = _combinedMatches.asStateFlow()
+
+    // Method to fetch both past and upcoming matches
+    override fun fetchPastAndUpcomingMatches(ids: List<Int>) {
+        viewModelScope.launch {
+            _combinedMatchesState.value = Result.Loading
+
+            try {
+                // Call the existing method in MatchesClientImpl
+                val combinedMatchesResult = matchesClient.getPastAndUpcomingMatchesForMultipleTeams(ids)
+                if (combinedMatchesResult != null) {
+                    _combinedMatches.update { combinedMatchesResult.getOrNull()}
+                    Log.e("PAST AND UPCOMING", _combinedMatches.value.toString())
+                } else {
+                    _combinedMatchesState.value = Result.Error(Exception("Failed to fetch past and upcoming matches"))
+                }
+            } catch (e: Exception) {
+                _combinedMatchesState.value = Result.Error(e)
+            }
+        }
+    }
+
+
+    // Method to add a followed team
+    override fun followTeam(team: TeamDetails) {
+        _followedTeams.value = (_followedTeams.value ?: emptyList()) + team
+        TeamStorage.saveFollowedTeams(getApplication(), _followedTeams.value!!)
+    }
+
+    override fun unFollowTeam(team: TeamDetails) {
+        _followedTeams.value = _followedTeams.value?.toMutableList()?.apply {
+            remove(team)
+        }
+        TeamStorage.saveFollowedTeams(getApplication(), _followedTeams.value ?: emptyList())
+    }
+
+
+    // Method to load followed teams
+    override fun loadFollowedTeams() {
+        Log.e("VMMM", "IM HERE")
+        _followedTeams.value = TeamStorage.loadFollowedTeams(getApplication())
+        Log.e("TEAMS VMM", _followedTeams.value.toString())
+        val teamIds = _followedTeams.value?.map { it.idTeam } ?: emptyList()
+        fetchPastAndUpcomingMatches(teamIds)
+    }
+
     override fun fetchTeam(id: Int) {
         viewModelScope.launch {
             _teamState.value = Result.Loading
