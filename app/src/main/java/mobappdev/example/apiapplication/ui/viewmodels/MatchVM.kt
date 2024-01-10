@@ -1,6 +1,10 @@
 package mobappdev.example.apiapplication.ui.viewmodels
 
+import LiveDataEvents
+import MatchDetails
 import Matches
+import Stats
+import TimeLines
 import UpcomingMatches
 import android.app.Application
 import android.util.Log
@@ -13,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import mobappdev.example.apiapplication.search.impl.MatchDetailsImpl
 import mobappdev.example.apiapplication.search.impl.MatchesClientImpl
 import mobappdev.example.apiapplication.utils.Result
 
@@ -34,9 +39,23 @@ application: Application
     private val _upcomingMatches = MutableStateFlow<UpcomingMatches?>(null)
     val upcomingMatches: StateFlow<UpcomingMatches?> = _upcomingMatches.asStateFlow()
 
+    private val matchDetailsImpl: MatchDetailsImpl = MatchDetailsImpl()
+    private val _matchDetailsState = MutableStateFlow<Result<String>>(Result.Loading)
+    private val _matchDetails = MutableStateFlow<MatchDetails?>(null)
+    val matchDetails: StateFlow<MatchDetails?> = _matchDetails.asStateFlow()
+
+    private val _statsState = MutableStateFlow<Result<String>>(Result.Loading)
+    private val _stats = MutableStateFlow<Stats?>(null)
+    val stats: StateFlow<Stats?> = _stats.asStateFlow()
+
+    private val _timeLineState = MutableStateFlow<Result<String>>(Result.Loading)
+    private val _timeLine = MutableStateFlow<TimeLines?>(null)
+    val timeline: StateFlow<TimeLines?> = _timeLine.asStateFlow()
+
+
     init {
         fetchaMatch()
-        fetchUpcomingMatches(133602)
+        fetchMatchDetails(441613)
     }
     fun fetchUpcomingMatches(id: Int)
     {
@@ -53,6 +72,71 @@ application: Application
             }catch (e: Exception)
             {
                 _upcomingMatchState.value = Result.Error(e)
+            }
+        }
+    }
+
+
+    fun fetchStats(id: Int)
+    {
+        viewModelScope.launch {
+            _statsState.value = Result.Loading
+            try {
+                val result = matchDetailsImpl.getStats(id)
+                Log.e("stat ", "SELECTED STATS $result")
+
+                if (result != null){
+                    _stats.update {
+                        result.getOrNull()
+                    }
+                }else{
+                    _statsState.value = Result.Error(Exception("Failed to fetch weather"))
+                }
+            }catch (e: Exception)
+            {
+                _statsState.value = Result.Error(e)
+            }
+        }
+    }
+    fun fetchTimeLine(id: Int)
+    {
+        viewModelScope.launch {
+            _timeLineState.value = Result.Loading
+            try {
+                val result = matchDetailsImpl.getTimeLine(id)
+                Log.e("selected MATCH ", "SELECTED MATCH $result")
+
+                if (result != null){
+                    _timeLine.update {
+                        result.getOrNull()
+                    }
+                }else{
+                    _timeLineState.value = Result.Error(Exception("Failed to fetch weather"))
+                }
+            }catch (e: Exception)
+            {
+                _timeLineState.value = Result.Error(e)
+            }
+        }
+    }
+    fun fetchMatchDetails(id: Int)
+    {
+        viewModelScope.launch {
+            _matchDetailsState.value = Result.Loading
+            try {
+                val result = matchDetailsImpl.getMatchDetail(id)
+                Log.e("selected MATCH ", "SELECTED MATCH $result")
+
+                if (result != null){
+                    _matchDetails.update {
+                        result.getOrNull()
+                    }
+                }else{
+                    _matchDetailsState.value = Result.Error(Exception("Failed to fetch weather"))
+                }
+            }catch (e: Exception)
+            {
+                _matchDetailsState.value = Result.Error(e)
             }
         }
     }

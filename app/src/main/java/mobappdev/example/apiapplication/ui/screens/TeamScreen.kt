@@ -1,5 +1,7 @@
 package mobappdev.example.apiapplication.ui.screens
 
+import LiveData
+import LiveDataEvents
 import PastMatch
 import PastMatches
 import UpcomingMatch
@@ -40,6 +42,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import androidx.wear.compose.material.ContentAlpha
 import coil.compose.rememberImagePainter
 import kotlinx.coroutines.launch
@@ -47,11 +51,12 @@ import mobappdev.example.apiapplication.ui.viewmodels.TeamVM
 import mobappdev.example.apiapplication.data.TeamDetails
 
 @Composable
-fun TeamScreen(vm: TeamVM, teamId: Int) {
+fun TeamScreen(vm: TeamVM, teamId: Int,navController: NavController) {
     LaunchedEffect(teamId) {
         vm.fetchTeam(teamId)
         vm.fetchPastMatches(teamId)
         vm.fetchUpcomingMatches(teamId)
+        vm.fetchLiveData()
     }
     val primaryColor = Color(0xFF1976D2)
     val textColor = Color.White
@@ -128,7 +133,7 @@ fun TeamScreen(vm: TeamVM, teamId: Int) {
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
-                        PastMatchesScreen(pastMatches = past, teamId = teamId, teamBadge = teamBadge.toString())
+                        PastMatchesScreen(pastMatches = past, teamId = teamId, teamBadge = teamBadge.toString(),navController)
                     }
                 } else {
                     Text(
@@ -222,10 +227,73 @@ fun UpcomingMatchesScreen(upcomingMatches: UpcomingMatches, teamBadge: String) {
         }
     }
 }
+@Composable
+fun liveMatchItem(match: LiveDataEvents, teamBadge: String) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .clickable {},
+        elevation = CardDefaults.cardElevation()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            // Display home team badge as an image
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.Start,
+            ) {
+                BadgeImage(match.events.get(0).strHomeTeamBadge, teamBadge, 100.dp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = match.events.get(0).intHomeScore.toString(),
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "-",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = match.events.get(0).intAwayScore.toString(),
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                BadgeImage(match.events.get(0).strAwayTeamBadge, teamBadge, 100.dp)
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .background(Color.Red)
+                        .align(Alignment.CenterVertically)
+                )
 
+            }
+
+            // Display individual match details
+            Spacer(modifier = Modifier.height(16.dp))
+            ClickableText(
+                text = buildAnnotatedString {
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("${match.events.get(0).strHomeTeam} vs ${match.events.get(0).strAwayTeam}")
+                    }
+                },
+                onClick = { offset -> },
+                modifier = Modifier.padding(8.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+}
 
 @Composable
-fun PastMatchItem(match: PastMatch, teamBadge: String) {
+fun PastMatchItem(match: PastMatch, teamBadge: String,navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -275,7 +343,7 @@ fun PastMatchItem(match: PastMatch, teamBadge: String) {
                     }
                 },
                 onClick = { offset ->
-                    // Handle click on team names if needed
+                    navController.navigate("match/${match.idEvent}?imageA=${match.strAwayTeamBadge}&imageB=${match.strHomeTeamBadge}&imageC=${teamBadge}")
                 },
                 modifier = Modifier.padding(8.dp)
             )
@@ -419,7 +487,7 @@ fun MatchResultCircle(index: Int, match: PastMatch, teamId: Int, onClick: (Int) 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PastMatchesScreen(pastMatches: PastMatches, teamId: Int, teamBadge: String) {
+fun PastMatchesScreen(pastMatches: PastMatches, teamId: Int, teamBadge: String,navController: NavController) {
     val scope = rememberCoroutineScope()
     val selectedIndex by remember { mutableIntStateOf(0) }
     val pagerState = rememberPagerState(
@@ -440,7 +508,7 @@ fun PastMatchesScreen(pastMatches: PastMatches, teamId: Int, teamBadge: String) 
                 .fillMaxWidth(),
             reverseLayout = true
         ) { page ->
-            PastMatchItem(match = pastMatches.results[page], teamBadge = teamBadge)
+            PastMatchItem(match = pastMatches.results[page], teamBadge = teamBadge,navController)
         }
         // Display circles for each past match
         LazyRow(

@@ -1,6 +1,7 @@
 package mobappdev.example.apiapplication.search
 
 import mobappdev.example.apiapplication.data.Teams
+import mobappdev.example.apiapplication.data.TeamsDetails
 import mobappdev.example.apiapplication.model.ResultResponse
 
 /**
@@ -12,4 +13,5 @@ interface SearchTeamClient {
     suspend fun byName(name: String): Result<Teams>
 
     fun byShortCode(shortCode: String): ResultResponse
+    suspend fun searchTeamByCountry(country: String) :Result<TeamsDetails>
 }

@@ -1,5 +1,7 @@
 package mobappdev.example.apiapplication.ui.viewmodels
 
+import LiveData
+import LiveDataEvents
 import PastAndUpcomingMatches
 import PastMatches
 import UpcomingMatches
@@ -10,14 +12,17 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import mobappdev.example.apiapplication.data.FetchLocation
 import mobappdev.example.apiapplication.data.TeamDetails
 import mobappdev.example.apiapplication.data.TeamStorage
 import mobappdev.example.apiapplication.data.TeamsDetails
 import mobappdev.example.apiapplication.lookup.LookupTeamClient
 import mobappdev.example.apiapplication.lookup.impl.LookupTeamClientImpl
 import mobappdev.example.apiapplication.search.MatchesClient
+import mobappdev.example.apiapplication.search.impl.MatchDetailsImpl
 import mobappdev.example.apiapplication.search.impl.MatchesClientImpl
 import mobappdev.example.apiapplication.utils.Result
 
@@ -45,6 +50,8 @@ class TeamVM (application: Application
     private val _team = MutableStateFlow<TeamsDetails?>(null)
     override val team: StateFlow<TeamsDetails?> = _team.asStateFlow()
 
+
+
     private val _teamState = MutableStateFlow<Result<String>>(Result.Loading)
     val teamState: StateFlow<Result<String>> = _teamState
 
@@ -67,6 +74,16 @@ class TeamVM (application: Application
 
     private val _combinedMatches = MutableStateFlow<Map<Int, PastAndUpcomingMatches>?>(null)
     override val combinedMatches: StateFlow<Map<Int, PastAndUpcomingMatches>?> = _combinedMatches.asStateFlow()
+
+    private val matchDetailsImpl: MatchDetailsImpl = MatchDetailsImpl()
+    private val _liveDataState = MutableStateFlow<Result<String>>(Result.Loading)
+    private val _liveData = MutableStateFlow<LiveDataEvents?>(null)
+    val liveData: StateFlow<LiveDataEvents?> = _liveData.asStateFlow()
+
+    private val _liveDataTemp = MutableStateFlow(LiveDataEvents(mutableListOf()))
+    val liveDataTemp: StateFlow<LiveDataEvents?> = _liveDataTemp.asStateFlow()
+
+
 
     // Method to fetch both past and upcoming matches
     override fun fetchPastAndUpcomingMatches(ids: List<Int>) {
@@ -93,6 +110,31 @@ class TeamVM (application: Application
     override fun followTeam(team: TeamDetails) {
         _followedTeams.value = (_followedTeams.value ?: emptyList()) + team
         TeamStorage.saveFollowedTeams(getApplication(), _followedTeams.value!!)
+    }
+    fun fetchLiveData(){
+        viewModelScope.launch {
+            _liveDataState.value = Result.Loading
+            try {
+                val result = matchDetailsImpl.getLiveData()
+                Log.e("live data ", "Live DATA $result")
+                if (result != null){
+                    _liveData.update {
+                        result.getOrNull()
+                    }
+                    val teamName = _team.value?.teams?.get(0)?.strTeam;
+                    for (event in _liveData.value?.events!!){
+                        if (event.strHomeTeam == teamName || event.strAwayTeam == teamName)
+                        {
+                            _liveDataTemp.value.events.add(event)
+                        }
+                    }
+                }else{
+                    _liveDataState.value = Result.Error(Exception("Failed to fetch liveData"))
+                }
+            }catch (e: Exception){
+                _liveDataState.value = Result.Error(e)
+            }
+        }
     }
 
     override fun unFollowTeam(team: TeamDetails) {
@@ -169,4 +211,6 @@ class TeamVM (application: Application
             }
         }
     }
+
+
 }

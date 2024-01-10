@@ -1,9 +1,11 @@
 package mobappdev.example.apiapplication
 
 import FootballScreen
+import MatchDetailScreen
 import SearchScreen
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -16,6 +18,7 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,6 +43,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import mobappdev.example.apiapplication.data.FetchLocation
+import mobappdev.example.apiapplication.ui.screens.LiveMatchScreen
 import mobappdev.example.apiapplication.ui.screens.TeamScreen
 import mobappdev.example.apiapplication.ui.theme.JokeGeneratorTheme
 import mobappdev.example.apiapplication.ui.viewmodels.LeagueVM
@@ -80,16 +85,41 @@ class MainActivity : ComponentActivity() {
                                         // Replace with the content of your search screen
                                         SearchScreen(vm = searchVM, navController = navController)
                                     }
+                                    composable("Live"){
+                                        LiveMatchScreen(vm = teamVM)
+                                    }
+
                                     composable(
                                         route = "team/{teamId}",
                                         arguments = listOf(navArgument("teamId") { type = NavType.StringType })
                                     ) { backStackEntry ->
                                         val teamId = backStackEntry.arguments?.getString("teamId")
                                         if (teamId != null) {
-                                            TeamScreen(vm = teamVM, teamId = teamId.toInt())
+                                            TeamScreen(vm = teamVM, teamId = teamId.toInt(), navController = navController)
                                         } else {
                                             // Handle the case where teamId is null
                                             Text("Error: Invalid teamId")
+                                        }
+                                    }
+                                    composable(
+                                        route = "match/{matchId}?imageA={imageA}&imageB={imageB}&imageC={imageC}",
+                                        arguments = listOf(
+                                            navArgument("matchId") { type = NavType.StringType },
+                                            navArgument("imageA") { type = NavType.StringType },
+                                            navArgument("imageB") { type = NavType.StringType },
+                                            navArgument("imageC") { type = NavType.StringType }
+                                        )
+                                    ) { backStackEntry ->
+                                        val matchId = backStackEntry.arguments?.getString("matchId")
+                                        val imageA = backStackEntry.arguments?.getString("imageA") ?: ""
+                                        val imageB = backStackEntry.arguments?.getString("imageB") ?: ""
+                                        val imageC = backStackEntry.arguments?.getString("imageC") ?: ""
+
+                                        if (matchId != null) {
+                                            MatchDetailScreen(vm = matchVM, matchId = matchId.toInt(), awayTeamBadge = imageA, homeTeamBadge = imageB, teamBadge = imageC)
+                                        } else {
+                                            // Handle the case where matchId is null
+                                            Text("Error: Invalid matchId")
                                         }
                                     }
                                 }
@@ -98,7 +128,7 @@ class MainActivity : ComponentActivity() {
                         bottomBar = {
                             Spacer(modifier = Modifier.height(56.dp))
                             NavigationBar {
-                                val items = listOf("Hem", "Sök")
+                                val items = listOf("Hem", "Sök", "Live matcher")
                                 var selectedItem by remember { mutableStateOf(0) }
 
                                 items.forEachIndexed { index, item ->
@@ -112,6 +142,11 @@ class MainActivity : ComponentActivity() {
 
                                                 1 -> Icon(
                                                     Icons.Default.Search,
+                                                    contentDescription = item
+                                                )
+
+                                                2 -> Icon(
+                                                    Icons.Default.PlayArrow, // Choose an appropriate icon for "Live matcher"
                                                     contentDescription = item
                                                 )
 
@@ -129,6 +164,7 @@ class MainActivity : ComponentActivity() {
                                                 when (index) {
                                                     0 -> navController.navigate("home")
                                                     1 -> navController.navigate("search")
+                                                    2 -> navController.navigate("Live")
                                                 }
                                             }
                                         }
