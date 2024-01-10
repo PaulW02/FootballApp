@@ -75,25 +75,49 @@ fun TeamScreen(vm: TeamVM, teamId: Int,navController: NavController) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(team.teams.size) { index ->
-                    // Display team name
-                    Text(
-                        text = team.teams[index].strTeam,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor,
+
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
-                    )
-                    // Display team badge
-                    Image(
-                        painter = rememberImagePainter(data = team.teams[index].strTeamBadge),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .padding(16.dp)
-                    )
-                    TeamDetailsSection(team = team.teams[index])
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(0.5f)
+                                .padding(16.dp)
+                        ) {
+                            // Display team badge
+                            Image(
+                                painter = rememberImagePainter(data = team.teams[index].strTeamBadge),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .padding(16.dp)
+                            )
+                            Text(
+                                text = team.teams[index].strTeam,
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = textColor,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            )
+                        }
+
+                        // Display team name
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(0.5f)
+                                .padding(16.dp)
+                        ) {
+                            // Display team details beside the badge and team name
+                            TeamDetailsSection(team = team.teams[index])
+                        }
+                    }
+
                     val isFollowing = followingTeams.value != null && followingTeams.value?.contains(team.teams[0]) == true
                     Button(
                         onClick = {
@@ -116,8 +140,7 @@ fun TeamScreen(vm: TeamVM, teamId: Int,navController: NavController) {
                         )
                     ) {
                         Text(text = if (isFollowing) "Following" else "Follow")
-                    }
-                }
+                    }                }
             }
         }
         Column(modifier = Modifier
@@ -181,18 +204,12 @@ fun TeamScreen(vm: TeamVM, teamId: Int,navController: NavController) {
 
 @Composable
 fun TeamDetailsSection(team: TeamDetails) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
         // Display other team details here...
         TeamDetailItem(label = "Country", value = team.strCountry)
         TeamDetailItem(label = "Formed Year", value = team.intFormedYear)
         TeamDetailItem(label = "League", value = team.strLeague)
         TeamDetailItem(label = "Stadium", value = team.strStadium)
         // Add more details as needed...
-    }
 }
 
 @Composable
@@ -202,12 +219,6 @@ fun TeamDetailItem(label: String, value: String) {
             .fillMaxWidth()
             .padding(vertical = 8.dp)
     ) {
-        Text(
-            text = "$label:",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray,
-            modifier = Modifier.width(120.dp)
-        )
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
