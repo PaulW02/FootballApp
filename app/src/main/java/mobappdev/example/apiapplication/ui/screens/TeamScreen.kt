@@ -97,7 +97,7 @@ fun TeamScreen(vm: TeamVM, teamId: Int,navController: NavController) {
                             )
                             Text(
                                 text = team.teams[index].strTeam,
-                                style = MaterialTheme.typography.headlineMedium,
+                                style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = textColor,
                                 modifier = Modifier
@@ -464,10 +464,10 @@ fun getMatchResultColor(match: PastMatch, teamId: Int): Color {
 
 fun getMatchResultIcon(match: PastMatch, teamId: Int): String {
     return when {
-        match.intHomeScore > match.intAwayScore && match.idHomeTeam == teamId -> "V"
-        match.intAwayScore > match.intHomeScore && match.idAwayTeam == teamId -> "V"
-        match.intHomeScore == match.intAwayScore -> "O"
-        else -> "F"
+        match.intHomeScore > match.intAwayScore && match.idHomeTeam == teamId -> "W"
+        match.intAwayScore > match.intHomeScore && match.idAwayTeam == teamId -> "W"
+        match.intHomeScore == match.intAwayScore -> "D"
+        else -> "L"
     }
 }
 

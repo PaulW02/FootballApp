@@ -108,22 +108,22 @@ fun MatchDetailScreen(vm: MatchVM, matchId: Int, awayTeamBadge: String ,homeTeam
         // Match details
         matchDetails.value?.events?.get(0)?.let { event ->
             Text(
-                text = "Date: ${event.dateEvent}" ?: "",
+                text = "${event.dateEvent}" ?: "",
                 modifier = Modifier.padding(vertical = 4.dp),
                 color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
             )
             Text(
-                text = "League: ${event.strLeague}" ?: "",
+                text = "${event.strLeague}" ?: "",
                 modifier = Modifier.padding(vertical = 4.dp),
                 color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
             )
             Text(
-                text =  "Venue ${event.strVenue}" ?: "",
+                text =  "${event.strVenue}" ?: "",
                 modifier = Modifier.padding(vertical = 4.dp),
                 color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
             )
             Text(
-                text = "Season ${event.strSeason}" ?: "",
+                text = "${event.strSeason}" ?: "",
                 modifier = Modifier.padding(vertical = 4.dp),
                 color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
             )
@@ -146,7 +146,7 @@ fun MatchDetailScreen(vm: MatchVM, matchId: Int, awayTeamBadge: String ,homeTeam
             modifier = Modifier.padding(vertical = 8.dp)
         ) {
             Text(
-                text = if (detailMode == DetailMode.STATS) "Show TimeLines" else "Show MatchStats"
+                text = if (detailMode == DetailMode.STATS) "Timeline" else "Matchstats"
             )
         }
 
@@ -260,9 +260,31 @@ fun TimeLineList(timeLines: TimeLines) {
                         text = "${timeLine.strTeam}: ${timeLine.strTimelineDetail}",
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    if (timeLine.strAssist.isNotEmpty()) {
+                    if (timeLine.strAssist.isNotEmpty() && timeLine.strTimeline.contains("Goal")) {
+                        Text(
+                            text = "Scorer: ${timeLine.strPlayer}",
+                            style = MaterialTheme.typography.titleSmall
+                        )
                         Text(
                             text = "Assist: ${timeLine.strAssist}",
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    }
+
+                    if (timeLine.strTimeline.contains("subst")) {
+                        Text(
+                            text = "In: ${timeLine.strAssist}",
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                        Text(
+                            text = "Out: ${timeLine.strPlayer}",
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    }
+
+                    if (timeLine.strTimelineDetail.contains("Yellow")) {
+                        Text(
+                            text = "${timeLine.strPlayer}",
                             style = MaterialTheme.typography.titleSmall
                         )
                     }

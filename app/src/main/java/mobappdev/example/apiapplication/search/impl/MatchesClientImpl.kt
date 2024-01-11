@@ -29,7 +29,6 @@ class MatchesClientImpl: MatchesClient, AbstractJsportsClient()
                 val inputStream = connection.inputStream
                 val json = inputStream.bufferedReader().use { it.readText() }
                 if (JsonParser.parseString(json).asJsonObject.get("events").isJsonNull) {
-                    Log.e("TEAST", "ERRORRORO")
                     return@withContext Result.success(UpcomingMatches(emptyList()))
                 }
                 // Use Gson to parse the JSON string into an UpcomingMatches object

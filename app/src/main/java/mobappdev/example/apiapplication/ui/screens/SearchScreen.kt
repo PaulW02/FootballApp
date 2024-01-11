@@ -50,7 +50,7 @@ fun SearchScreen(vm: SearchVM, navController: NavController) {
     val locationTeams = vm.cityTeams.collectAsState()
 
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Teams", "Locations")
+    val tabs = listOf("Teams", "Nearby you")
 
     val context = LocalContext.current
     val locationClient = remember {
@@ -58,7 +58,6 @@ fun SearchScreen(vm: SearchVM, navController: NavController) {
     }
 
     var locationPermissionGranted by remember { mutableStateOf(false) }
-
     // Request location permissions
     DisposableEffect(context) {
         locationPermissionGranted = (
@@ -97,15 +96,12 @@ fun SearchScreen(vm: SearchVM, navController: NavController) {
                     selected = selectedTab == index,
                     onClick = {
                         selectedTab = index
-
                         if (selectedTab == 1) { // Check if the "Locations" tab is selected
                             if (locationPermissionGranted) {
                                 // Get the location only if permission is granted
                                 locationClient.lastLocation
                                     .addOnSuccessListener { location ->
                                         // Handle location here
-                                        Log.e("PAUL LOCATION", location.toString())
-
                                         // Get city and country from location
                                         val addresses: List<Address>? = Geocoder(context, Locale.getDefault()).getFromLocation(
                                             location.latitude,
@@ -124,7 +120,8 @@ fun SearchScreen(vm: SearchVM, navController: NavController) {
                                             vm.fetchTeamByCountry(country.toString())
                                             // Fetch location-based teams with new values
                                             vm.filterTeamsByCity(city.toString())
-                                            Log.e("TEEsT TEAMS", locationTeams.value.toString())
+                                            Log.e("LOCATION", addresses.toString())
+                                            Log.e("LOCATION", city.toString())
                                         }
 
                                     }
@@ -198,12 +195,6 @@ fun DisplayTeams(teams: Teams?, navController: NavController,vm: SearchVM) {
         // Search Form
         SearchForm(vm)
 
-        Text(
-            text = "Teams",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
         // Display teams information
         teams?.teams?.let { teamsList ->
             LazyColumn(
@@ -267,7 +258,7 @@ fun DisplayLocationTeams(locationTeams: List<TeamDetails>?,navController: NavCon
             .padding(16.dp)
     ) {
         Text(
-            text = "Location-based Teams",
+            text = "Teams nearby you",
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(bottom = 8.dp)
         )

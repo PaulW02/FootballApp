@@ -128,7 +128,7 @@ class MainActivity : ComponentActivity() {
                         bottomBar = {
                             Spacer(modifier = Modifier.height(56.dp))
                             NavigationBar {
-                                val items = listOf("Hem", "Sök", "Live matcher")
+                                val items = listOf("Home", "Search", "Live matches")
                                 var selectedItem by remember { mutableStateOf(0) }
 
                                 items.forEachIndexed { index, item ->

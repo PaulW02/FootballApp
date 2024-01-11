@@ -246,7 +246,7 @@ fun FootballHeader(navController: NavController) {
             TopAppBar(
                 title = {
                     Text(
-                        "Hem",
+                        "Home",
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

@@ -4,7 +4,9 @@ import LiveDataEvents
 import MatchDetails
 import Stats
 import TimeLines
+import android.util.Log
 import com.google.gson.Gson
+import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -46,7 +48,9 @@ class MatchDetailsImpl: AbstractJsportsClient()
                 val connection = url.openConnection() as HttpURLConnection
                 val inputStream = connection.inputStream
                 val json = inputStream.bufferedReader().use { it.readText() }
-
+                if (JsonParser.parseString(json).asJsonObject.get("eventstats").isJsonNull) {
+                    return@withContext Result.success(Stats(emptyList()))
+                }
                 // Use Gson to parse the JSON string into a Joke object
                 val type = object : TypeToken<Stats>() {}.type
                 val joke = Gson().fromJson<Stats>(json, type)
@@ -67,7 +71,9 @@ class MatchDetailsImpl: AbstractJsportsClient()
                 val connection = url.openConnection() as HttpURLConnection
                 val inputStream = connection.inputStream
                 val json = inputStream.bufferedReader().use { it.readText() }
-
+                if (JsonParser.parseString(json).asJsonObject.get("timeline").isJsonNull) {
+                    return@withContext Result.success(TimeLines(emptyList()))
+                }
                 // Use Gson to parse the JSON string into a Joke object
                 val type = object : TypeToken<TimeLines>() {}.type
                 val joke = Gson().fromJson<TimeLines>(json, type)
